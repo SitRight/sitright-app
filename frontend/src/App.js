@@ -1,57 +1,36 @@
-import React, { Component } from 'react';
-import Webcam from "react-webcam"
+import React, { useState } from 'react';
+import './App.css';
+import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css'; 
 
 
-class App extends Component {
+function App() {
 
-  setRef = webcam => {
-    this.webcam = webcam;
-  };
+  const [base64str, setBase64Str] = useState('')
 
-  state = {
-    pic: ""
-  }
-
-
-  capture = ()=>{
-    const imageSrc = this.webcam.getScreenshot();
-    console.log(imageSrc);
-
-    fetch('http://localhost:8000/predict/image', {method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    },body: JSON.stringify({image:{
-      base64str: imageSrc
-    }
-    })
-  })
-    .then(res=>res.json())
-    .then(image=>{
-      this.setState({
-        pic: image.base64str
-      })
-    })
-
-  };
+  const addImageHandler = () => {
+    axios.post('http://localhost:8000/predict', { 'base64str': base64str})
+      .then(res => console.log(res))
+};
 
 
-  render() {
-    return (
-      <div className="App">
-        <h1>Your Webcam</h1>
-        <Webcam
-        ref={this.setRef}
-        screenshotFormat="image/jpeg"
-        />
-        <br></br>
-        <button onClick={this.capture}>Take Photo</button>
-        <h1>Your Captured Image</h1>
-        <img src={this.state.pic} alt="oolala"/>
-        <p>Cloudinary URL: {this.state.pic}</p>
+  return (
+    <div className="App list-group-item  justify-content-center align-items-center mx-auto" style={{"width":"400px", "backgroundColor":"white", "marginTop":"15px"}} >
+      <h1 className="card text-white bg-primary mb-1" styleName="max-width: 20rem;">Task Manager</h1>
+      <h6 className="card text-white bg-primary mb-3">FASTAPI - React - MongoDB</h6>
+     <div className="card-body">
+      <h5 className="card text-white bg-dark mb-3">Add Your Task</h5>
+      <span className="card-text"> 
+        <input className="mb-2 form-control titleIn" onChange={event => setBase64Str(event.target.value)} placeholder='image'/> 
+        <button className="btn btn-outline-primary mx-2 mb-3" style={{'borderRadius':'50px',"font-weight":"bold"}} onClick={addImageHandler}>Add Image</button>
+      </span>
+      <h5 className="card text-white bg-dark mb-3">Your Tasks</h5>
+      <div >
       </div>
-    );
-  }
+      </div>
+      <h6 className="card text-dark bg-warning py-1 mb-0" >Copyright 2021, All rights reserved &copy;</h6>
+    </div>
+  );
 }
 
 export default App;

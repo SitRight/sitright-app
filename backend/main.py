@@ -8,14 +8,15 @@ import io
 import tensorflow as tf
 from tensorflow.keras.applications.imagenet_utils import decode_predictions
 
-
+from model import Photo
 from model import Todo
+from model import Predicts
 
 from database import (
-    fetch_one_todo,
+    #fetch_one_todo,
     fetch_all_todos,
     create_todo,
-    create_prediction
+    create_predicts
 )
 
 # an HTTP-specific exception class  to generate exception information
@@ -54,7 +55,7 @@ def predict(base64str):
     response = []
     for i, res in enumerate(result):
         resp = {}
-        resp["class"] = res[1]
+        resp["type"] = res[1]
         resp["confidence"] = f"{res[2]*100:0.2f} %"
         response.append(resp)
     return response
@@ -65,35 +66,39 @@ model = load_model()
 async def read_root():
     return {"Hello": "World"}
 
-@app.get("/api/todo")
+@app.get("/images")
 async def get_todo():
     response = await fetch_all_todos()
     return response
 
-@app.get("/api/todo/{title}", response_model=Todo)
-async def get_todo_by_title(title):
-    response = await fetch_one_todo(title)
-    if response:
-        return response
-    raise HTTPException(404, f"There is no todo with the title {title}")
+# @app.get("/api/todo/{title}", response_model=Todo)
+# async def get_todo_by_title(title):
+#     response = await fetch_one_todo(title)
+#     if response:
+#         return response
+#     raise HTTPException(404, f"There is no todo with the title {title}")
 
-@app.post("/api/todo/", response_model=Todo)
+@app.post("/images/", response_model=Todo)
 async def post_todo(todo: Todo):
     response = await create_todo(todo.dict())
     if response:
         return response
     raise HTTPException(400, "Something went wrong")
 
-@app.post("/predict/image")
-async def predict_api(base64str):
+@app.post("/predict", response_model=Predicts)
+async def predict_api(photo: Photo):
+    base64str = photo.base64str
     prediction = predict(base64str)
     prediction = prediction[0]
-    return prediction
-    # response = await create_prediction(prediction.list())
-    # if response:
-    #     return response
-    # raise HTTPException(400, "Something went wrong")
-    
+    predicts = prediction
+    #return predicts
+    response = await create_predicts(predicts)
+    if response:
+        return response
+    raise HTTPException(400, "Something went wrong")
+
+
+
 
 
 

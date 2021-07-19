@@ -6,9 +6,9 @@ database = client.Main
 user_collection = database.todo
 predicts_collection = database.predicts
 
-async def fetch_one_todo(title):
-    document = await user_collection.find_one({"title": title})
-    return document
+# async def fetch_one_todo(title):
+#     document = await user_collection.find_one({"title": title})
+#     return document
 
 async def fetch_all_todos():
     todos = []
@@ -22,7 +22,8 @@ async def create_todo(todo):
     result = await user_collection.insert_one(document)
     return document
 
-async def create_prediction(predicts):
+
+async def create_predicts(predicts):
     document = predicts
-    result = await predicts_collection.insert_many(document)
+    result = await predicts_collection.insert_one(document)
     return document
